@@ -59,7 +59,7 @@ def verify_path(start_str, end_str, moves):
         exit(0)
 
 def verify_cost(output_cost, path, cost_fn):
-    correct_cost = sum([cost_fn[int(move[0])] for move in path])
+    correct_cost = sum(cost_fn[int(move[0])] for move in path)
     if correct_cost != output_cost:
         print("COST ERROR: Cost of the output path is {}, but you reported {}".format(correct_cost, output_cost))
         exit(0)
