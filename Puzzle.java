@@ -176,7 +176,7 @@ class puzzle8
 	  	Comparator<puzzle8> comparator = new Comparator<puzzle8>() {
             @Override
             public int compare(puzzle8 a, puzzle8 b) {
-				if(score.get(a)==score.get(b)){
+				if(Objects.equals(score.get(a), score.get(b))){
 					return 0;
 				}
 				else if(score.get(a)-score.get(b)>0){
