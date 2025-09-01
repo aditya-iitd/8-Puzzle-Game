@@ -3,10 +3,21 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
+/**
+ * Represents a position/coordinate in the 3x3 puzzle grid.
+ * Used to track tile positions and the blank space location.
+ */
 class Tile{
+	/** X coordinate (row) in the 3x3 grid */
 	public int x;
+	/** Y coordinate (column) in the 3x3 grid */
 	public int y;
 
+	/**
+	 * Creates a new Tile with the specified coordinates.
+	 * @param x Row position in the 3x3 grid (0-2)
+	 * @param y Column position in the 3x3 grid (0-2)
+	 */
 	public Tile(int x, int y)
 	{
 		this.x = x;
@@ -14,18 +25,35 @@ class Tile{
 	}
 }
 
+/**
+ * Represents an 8-puzzle state and provides solving functionality.
+ * The 8-puzzle is a sliding puzzle consisting of a 3x3 grid with 8 numbered tiles and one blank space.
+ * The goal is to arrange the tiles in order by sliding them into the blank space.
+ */
 class puzzle8
 {
+    /** Dimension of the puzzle grid (3x3) */
     public  static int DIMS=3;
+	/** 2D array representing the current puzzle state */
 	public int[][] arr;
+	/** Width for display formatting */
 	public int width;
+	/** Position of the blank tile (represented as 0) */
 	public Tile blank;
+    /** Hash map for tracking puzzle states and their costs */
     public static HashMap<puzzle8,Integer> hash;
+    /** Array of movement costs for each numbered tile (1-8) */
     public static int d[];
+	/** Target puzzle configuration (solved state) */
 	public  static puzzle8 answer=new puzzle8();
+    /** Total cost of moves to reach this state */
     public int total_cost = 0;
 
 
+	/**
+	 * Copy constructor - creates a deep copy of another puzzle8 instance.
+	 * @param toClone The puzzle8 instance to copy
+	 */
 	public puzzle8(puzzle8 toClone) {
 		this();
 		for(Tile p: allTilePos()) {
@@ -34,6 +62,10 @@ class puzzle8
 		blank = toClone.getBlank();
 	}
 
+	/**
+	 * Returns a list of all possible tile positions in the 3x3 grid.
+	 * @return List containing Tile objects for all 9 positions (0,0) to (2,2)
+	 */
 	public List<Tile> allTilePos() {
 		ArrayList<Tile> out = new ArrayList<Tile>();
 		for(int i=0; i<DIMS; i++) {
@@ -45,6 +77,10 @@ class puzzle8
 	}
 
 
+    	/**
+    	 * Default constructor - creates the solved puzzle state.
+    	 * Numbers 1-8 are arranged in order with the blank (0) in the bottom-right corner.
+    	 */
     	public puzzle8() {
     		arr = new int[DIMS][DIMS];
     		int cnt=1;
@@ -60,10 +96,20 @@ class puzzle8
     	}
 
 
+	/**
+	 * Gets the value at the specified tile position.
+	 * @param p The tile position to query
+	 * @return The number at that position (0 for blank, 1-8 for numbered tiles)
+	 */
 	public int Tile(Tile p) {
 		return arr[p.x][p.y];
 	}
 
+	/**
+	 * Checks if two puzzle states are identical.
+	 * @param o Object to compare with
+	 * @return true if both puzzles have the same tile arrangement
+	 */
 	@Override
 	public boolean equals(Object o) {
 		if(o instanceof puzzle8) {
@@ -77,25 +123,39 @@ class puzzle8
 		return false;
 	}
 
+	/**
+	 * Returns all valid move positions for the blank tile.
+	 * A move is valid if it stays within grid bounds and moves exactly one position (up/down/left/right).
+	 * @return List of tile positions that the blank can move to
+	 */
 	public List<Tile> allValidMoves() {
 		ArrayList<Tile> out = new ArrayList<Tile>();
-		for(int dx=-1; dx<2; dx++) {
-			for(int dy=-1; dy<2; dy++) {
-				Tile tp = new Tile(blank.x + dx, blank.y + dy);
-				if( isValid(tp) ) {
-					out.add(tp);
-				}
+		int[] dx = {-1, 1, 0, 0};
+		int[] dy = {0, 0, -1, 1};
+		for(int i = 0; i < 4; i++) {
+			Tile tp = new Tile(blank.x + dx[i], blank.y + dy[i]);
+			if( isValid(tp) ) {
+				out.add(tp);
 			}
 		}
 		return out;
 	}
 
 
+    	/**
+    	 * Returns the current position of the blank tile.
+    	 * @return Tile object representing the blank's coordinates
+    	 */
     	public Tile getBlank() {
     		return blank;
     	}
 
 
+	/**
+	 * Checks if moving the blank tile to position p is a valid move.
+	 * @param p Target position for the blank tile
+	 * @return true if the move is valid (within bounds, adjacent to current blank position, not already blank)
+	 */
 	public boolean isValid(Tile p) {
 		if( ( p.x < 0) || (p.x >= DIMS) ) {
 			return false;
@@ -115,6 +175,11 @@ class puzzle8
 	}
 
 
+	/**
+	 * Creates a new puzzle state by moving the blank tile to position p.
+	 * @param p Target position for the blank tile
+	 * @return New puzzle8 instance with the move applied
+	 */
 	public puzzle8 clone(Tile p) {
 		puzzle8 out = new puzzle8(this);
 		out.arr[blank.x][blank.y] = out.arr[p.x][p.y];
@@ -126,6 +191,11 @@ class puzzle8
 
 
 
+	/**
+	 * Generates all possible adjacent puzzle states by making valid moves.
+	 * Also updates the hash map with movement costs for each generated state.
+	 * @return List of puzzle states reachable in one move
+	 */
 	public List<puzzle8> adjPuzzles() {
         hash = new HashMap<puzzle8,Integer>();
 		ArrayList<puzzle8> out = new ArrayList<puzzle8>();
@@ -146,6 +216,11 @@ class puzzle8
 
 
 
+    /**
+     * Generates a hash code for this puzzle state.
+     * Uses base-9 representation of the tile arrangement.
+     * @return Integer hash code uniquely identifying this puzzle state
+     */
     @Override
 	public int hashCode() {
     	int out=0;
@@ -156,6 +231,10 @@ class puzzle8
     }
 
 
+	/**
+	 * Checks if the current puzzle state matches the target solution.
+	 * @return true if all numbered tiles are in their correct positions
+	 */
 	public boolean isSolved() {
         int checker=0;
 		for(int i=0; i<DIMS; i++) {
@@ -170,6 +249,11 @@ class puzzle8
 
 
 
+    /**
+     * Solves the 8-puzzle using Dijkstra's algorithm with custom movement costs.
+     * Uses a priority queue to explore states with lowest cost first.
+     * @return List of puzzle states representing the solution path, or null if no solution exists
+     */
     public List<puzzle8> Solve() {
 	  	HashMap<puzzle8,puzzle8> prevList = new HashMap<puzzle8,puzzle8>();
 	  	HashMap<puzzle8,Integer> score = new HashMap<puzzle8,Integer>();
@@ -180,10 +264,10 @@ class puzzle8
 					return 0;
 				}
 				else if(score.get(a)-score.get(b)>0){
-					return -1;
+					return 1;
 				}
 				else{
-					return 1;
+					return -1;
 				}
 	  		}
 	  	};
@@ -214,6 +298,12 @@ class puzzle8
 	  	return null;
 	}
 
+    /**
+     * Determines the move that transforms puzzle state 'a' into puzzle state 'b'.
+     * @param a Starting puzzle state
+     * @param b Ending puzzle state (after one move)
+     * @return String representation of the move (e.g., "5U" means tile 5 moved up)
+     */
     public static String getDif(puzzle8 a, puzzle8 b)
     {
 
@@ -238,6 +328,11 @@ class puzzle8
         else return "Error!";
     }
 
+    /**
+     * Converts a solution path into a sequence of move strings.
+     * @param solution List of puzzle states representing the solution path
+     * @return Vector of move strings describing how to solve the puzzle
+     */
     public static Vector<String> getOutput(List<puzzle8> solution) {
         Vector<String> vec = new Vector<String>();
         int ch = 0;
@@ -258,8 +353,18 @@ class puzzle8
 	}
 }
 
+/**
+ * Main class that handles input/output and coordinates the puzzle solving process.
+ * Reads puzzle configurations from input file and writes solutions to output file.
+ */
 public class Puzzle{
 
+    /**
+     * Converts a 9-character string representation of a puzzle state into an integer array.
+     * Non-digit characters (representing the blank) are converted to 0.
+     * @param str String representation of the puzzle (9 characters)
+     * @return Integer array representing the puzzle state
+     */
     public static int[] convert(String str)
     {
         int res[] = new int[9];
@@ -277,6 +382,12 @@ public class Puzzle{
         return res;
     }
 
+	/**
+	 * Main method that processes input file and generates solution output.
+	 * Expected input format: number of test cases, followed by start state, end state, and movement costs for each case.
+	 * @param args Command line arguments: args[0] = input filename, args[1] = output filename
+	 * @throws java.lang.Exception for file I/O errors
+	 */
 	public static void main (String[] args) throws java.lang.Exception
 	{
         Scanner sc = new Scanner(new File(args[0]));
