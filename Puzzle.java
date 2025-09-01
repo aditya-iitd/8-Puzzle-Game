@@ -79,12 +79,12 @@ class puzzle8
 
 	public List<Tile> allValidMoves() {
 		ArrayList<Tile> out = new ArrayList<Tile>();
-		for(int dx=-1; dx<2; dx++) {
-			for(int dy=-1; dy<2; dy++) {
-				Tile tp = new Tile(blank.x + dx, blank.y + dy);
-				if( isValid(tp) ) {
-					out.add(tp);
-				}
+		int[] dx = {-1, 1, 0, 0};
+		int[] dy = {0, 0, -1, 1};
+		for(int i = 0; i < 4; i++) {
+			Tile tp = new Tile(blank.x + dx[i], blank.y + dy[i]);
+			if( isValid(tp) ) {
+				out.add(tp);
 			}
 		}
 		return out;
@@ -180,10 +180,10 @@ class puzzle8
 					return 0;
 				}
 				else if(score.get(a)-score.get(b)>0){
-					return -1;
+					return 1;
 				}
 				else{
-					return 1;
+					return -1;
 				}
 	  		}
 	  	};
