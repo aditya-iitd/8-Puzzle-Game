@@ -20,7 +20,7 @@ class puzzle8
 	public int[][] arr;
 	public int width;
 	public Tile blank;
-    public static HashMap<puzzle8,Integer> hash;
+    public static HashMap<puzzle8,Integer> hash = new HashMap<puzzle8,Integer>();
     public static int d[];
 	public  static puzzle8 answer=new puzzle8();
     public int total_cost = 0;
@@ -127,7 +127,7 @@ class puzzle8
 
 
 	public List<puzzle8> adjPuzzles() {
-        hash = new HashMap<puzzle8,Integer>();
+        hash.clear();
 		ArrayList<puzzle8> out = new ArrayList<puzzle8>();
 		for( Tile move: allValidMoves() ) {
             puzzle8 puz = clone(move);
